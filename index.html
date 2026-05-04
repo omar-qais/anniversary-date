@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Question</title>
+    <style>
+        :root {
+            --pale-neutral: #fdfaf6;
+            --text-color: #5a5a5a;
+            --accent-color: #d4a373;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 6x6 Photo Grid */
+        .photo-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        .photo-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .card {
+            background-color: var(--pale-neutral);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+        }
+
+        p.sub-msg {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            height: 60px;
+            position: relative;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            /* Smooth gliding transition */
+            transition: background 0.3s, left 0.4s ease-out, top 0.4s ease-out; 
+        }
+
+        .btn-yes { background-color: var(--accent-color); color: white; }
+        .btn-no { background-color: #e0e0e0; color: var(--text-color); }
+
+        .hidden { display: none; }
+
+        iframe {
+            border: none;
+            width: 100%;
+            height: 450px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="photo-grid" id="grid"></div>
+
+    <div class="container">
+        <!-- PAGE 1 -->
+        <div id="page1" class="card">
+            <h1>Do you want to go out with me for our anniversary?</h1>
+            <div class="btn-container">
+                <button class="btn-yes" onclick="showForm('primary')">Yes</button>
+                <button id="no1" class="btn-no" onclick="goToPage2()">No</button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: After clicking No -->
+        <div id="page2" class="card hidden">
+            <h1>Are you sure?</h1>
+            <div class="btn-container">
+                <button id="yes2" class="btn-yes" onclick="showForm('secondary')">Yes</button>
+                <button class="btn-no" onclick="goToPage1()">No</button>
+            </div>
+        </div>
+
+        <!-- PAGE 3: Redirected to Form -->
+        <div id="pageForm" class="card hidden">
+            <h1 id="formTitle">Yay!</h1>
+            <p id="formMsg" class="sub-msg hidden">If you change your mind just visit this link again :)</p>
+            <iframe id="googleIframe" src="">Loading…</iframe>
+        </div>
+    </div>
+
+    <script>
+        // Grid Generation
+        const grid = document.getElementById('grid');
+        for (let i = 1; i <= 36; i++) {
+            const img = document.createElement('img');
+            img.src = `tnok ${i}.jpg`;
+            grid.appendChild(img);
+        }
+
+        // Evasion Logic
+        let moveCount = 0;
+        const maxMoves = 18; 
+
+        function setupEvasion(buttonId) {
+            const btn = document.getElementById(buttonId);
+            btn.addEventListener('mouseover', () => {
+                if (moveCount < maxMoves) {
+                    // Calculate random position within viewport padding
+                    const x = Math.random() * (window.innerWidth - btn.clientWidth - 100) + 50;
+                    const y = Math.random() * (window.innerHeight - btn.clientHeight - 100) + 50;
+                    
+                    btn.style.position = 'fixed';
+                    btn.style.left = x + 'px';
+                    btn.style.top = y + 'px';
+                    moveCount++;
+                }
+            });
+        }
+
+        setupEvasion('no1'); // Page 1 movement
+        setupEvasion('yes2'); // Page 2 movement
+
+        function goToPage1() {
+            moveCount = 0; 
+            document.getElementById('page2').classList.add('hidden');
+            document.getElementById('page1').classList.remove('hidden');
+            resetBtn('no1');
+        }
+
+        function goToPage2() {
+            moveCount = 0; 
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.remove('hidden');
+            resetBtn('yes2');
+        }
+
+        function resetBtn(id) {
+            const btn = document.getElementById(id);
+            btn.style.position = 'static';
+            btn.style.left = 'auto';
+            btn.style.top = 'auto';
+        }
+
+        function showForm(type) {
+            const form1 = "https://docs.google.com/forms/d/e/1FAIpQLSdXW8UdRUowq-ScT7HmJLKFnl-UafujkRXZiKNa9MESmMn1fQ/viewform?usp=publish-editor";
+            const form2 = "https://docs.google.com/forms/d/e/1FAIpQLSdhYvQkcCv8Eqv-Y4FeELc03DP0KBsb77KJzooBZE3UM31DlQ/viewform?usp=publish-editor";
+            
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.add('hidden');
+            document.getElementById('pageForm').classList.remove('hidden');
+
+            const iframe = document.getElementById('googleIframe');
+            
+            if(type === 'primary') {
+                iframe.src = form1;
+            } else {
+                iframe.src = form2;
+                document.getElementById('formTitle').innerText = "I knew it!";
+                document.getElementById('formMsg').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
